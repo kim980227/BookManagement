@@ -7,7 +7,6 @@ import java.sql.Statement;
 import java.util.LinkedList;
 
 public class BookRepository {
-
     public LinkedList<Book> getAllByIdAndCategoryAndName() throws SQLException {
         JdbcComm jdbc = new JdbcComm();
         Statement statement = jdbc.getConnection().createStatement();
