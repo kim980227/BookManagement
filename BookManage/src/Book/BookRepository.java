@@ -2,6 +2,7 @@ package Book;
 
 import jdbc.JdbcComm;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.sql.Statement;
 import java.util.LinkedList;
@@ -20,12 +21,30 @@ public class BookRepository {
             book.setCategory(resultSet.getInt("category"));
             book.setBookName(resultSet.getString("book_name"));
 
+
             liBook.add(book);
         }
         resultSet.close();
         statement.close();
         jdbc.closeConnection();
         return liBook;
+    }
+
+    public BigDecimal getDiscountRate(int book_id) throws SQLException {
+        JdbcComm jdbc = new JdbcComm();
+        Statement statement = jdbc.getConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT discount_rate FROM t_book where book_id = " + book_id);
+        BigDecimal discountRate = null;
+        while (resultSet.next()) {
+            Book book = new Book();
+//            book.setIsDeleted(resultSet.getString("is_deleted").charAt(0));
+            book.setDiscountRate(resultSet.getBigDecimal("discount_rate"));
+            discountRate = book.getDiscountRate();
+        }
+        resultSet.close();
+        statement.close();
+        jdbc.closeConnection();
+        return discountRate;
     }
 
     // BOOK의 ID가 있는지 없는지 검사
@@ -61,18 +80,20 @@ public class BookRepository {
     }
 
     // 할인율 적용시켜서 Selling price 갱신
-    public void applyDiscount() throws SQLException {
+    public void applyDiscount(int bookId) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
         Statement statement = jdbc.getConnection().createStatement();
 
-        // Receive input from the user
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the book ID to apply discount: ");
-        int bookId = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
+//        // Receive input from the user
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.print("Enter the book ID to apply discount: ");
+//        int bookId = scanner.nextInt();
+//        scanner.nextLine(); // Consume the newline character
 
-        System.out.print("Enter the discount rate (e.g., 0.1 for 10%): ");
-        double discountRate = scanner.nextDouble();
+//        System.out.print("Enter the discount rate (e.g., 0.1 for 10%): ");
+//        double discountRate = scanner.nextDouble();
+
+        BigDecimal discountRate = getDiscountRate(bookId); // book에서 가져와야 됨
 
         // Update the selling price with the discount
         String updateQuery = "UPDATE t_book SET selling_price = selling_price * (1 - " + discountRate + ") WHERE book_id = " + bookId;
@@ -87,19 +108,19 @@ public class BookRepository {
         // Close resources
         statement.close();
         jdbc.closeConnection();
-        scanner.close();
+//        scanner.close();
     }
 
     // id 받아서 is_deleted 값을 T
-    public void deleteBook() throws SQLException {
+    public void deleteBook(int bookId) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
         Statement statement = jdbc.getConnection().createStatement();
 
-        // Receive input from the user
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the book ID to mark as deleted: ");
-        int bookId = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
+//        // Receive input from the user
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.print("Enter the book ID to mark as deleted: ");
+//        int bookId = scanner.nextInt();
+//        scanner.nextLine(); // Consume the newline character
 
         // Update the row with deletion information
         String updateQuery = "UPDATE t_book SET is_deleted = 'T', deleted_ts = CURRENT_TIMESTAMP WHERE book_id = " + bookId;
@@ -114,8 +135,9 @@ public class BookRepository {
         // Close resources
         statement.close();
         jdbc.getConnection();
-        scanner.close();
+//        scanner.close();
     }
+
     // Book의 제목, 내용, 저자 변경
     public void updateBook() throws SQLException {
         JdbcComm jdbc = new JdbcComm();
@@ -169,4 +191,3 @@ public class BookRepository {
         scanner.close();
     }
 }
-
