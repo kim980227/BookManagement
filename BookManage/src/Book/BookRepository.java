@@ -9,8 +9,6 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 public class BookRepository {
-    public LinkedList<Book> getAllByIdAndCategoryAndName() throws SQLException {
-
     public LinkedList<Book> getAllByIdAndCategoryAndName(int Limit) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
         Statement statement = jdbc.getConnection().createStatement();
@@ -44,7 +42,6 @@ public class BookRepository {
         jdbc.closeConnection();
         return result;
     }
-}
 
     public BigDecimal getDiscountRate(int book_id) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
