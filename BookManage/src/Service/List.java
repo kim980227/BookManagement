@@ -9,7 +9,7 @@ public class List {
 
     public static void main(String[] args) throws SQLException {
         BookRepository  bookRepository = new BookRepository();
-        LinkedList<Book> liBook = bookRepository.getAllByIdAndCategoryAndName();
+        LinkedList<Book> liBook = bookRepository.getAllByIdAndCategoryAndName(2);
         for (Book b : liBook) System.out.println(b);
     }
 }

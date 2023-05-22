@@ -29,5 +29,4 @@ public class Select1 {
         statement.close();
         jdbc.closeConnection();
     }
-
 }
