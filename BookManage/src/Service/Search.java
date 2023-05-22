@@ -4,7 +4,11 @@ public class Search {
 
 
     void SetCount(){
-        // 조회수 어쩌고 저쩌고
+
+        // txt
+    }
+    void getCount(){
+        //count.txt를 불러와서 array에 저장후 sort
 
     }
 }

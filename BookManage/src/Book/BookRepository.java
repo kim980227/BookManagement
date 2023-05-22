@@ -76,6 +76,25 @@ public class BookRepository {
         return false;
     }
 
+    public boolean validateName(String name) throws SQLException {
+        JdbcComm jdbc = new JdbcComm();
+
+        // 쿼리 실행
+        String query = "SELECT COUNT(*) AS count FROM t_book WHERE book_name = ?";
+        PreparedStatement statement = jdbc.getConnection().prepareStatement(query);
+        statement.setString(1, name); // name 변수에 적절한 값 설정
+        ResultSet resultSet = statement.executeQuery();
+
+        // 결과 처리
+        if (resultSet.next()) {
+            int count = resultSet.getInt("count");
+            System.out.println("책 개수: " + count);
+            return count > 0;
+        }
+
+        return false;
+    }
+
     // book이 삭제되었는지 확인
     public boolean isDeleted(int bookId) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
