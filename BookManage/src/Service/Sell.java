@@ -32,21 +32,16 @@ public class Sell {
 
     public BigDecimal sellALot(LinkedList<String> books) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
-        Statement statement = jdbc.getConnection().createStatement();
+        Sell sell = new Sell();
         BigDecimal sum = BigDecimal.valueOf(0.00);
         BigDecimal discount_rate = BigDecimal.valueOf(0.30);
 
         for (String book_name : books) {
-            String query = "SELECT selling_price FROM t_books WHERE book_name = '" + book_name + "'";
-            ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
-                sum = sum.add(resultSet.getBigDecimal("selling_price"));
-            }
+            sum = sum.add(sell.sell(book_name));
         }
 
         sum = sum.multiply(discount_rate);
 
         return sum;
     }
-
 }
