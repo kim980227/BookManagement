@@ -10,6 +10,7 @@ public class Main {
         Statement statement = jdbc.getConnection().createStatement();
         ResultSet resultSet = statement.executeQuery("select * from t_book");
 
+        
         while (resultSet.next()) {
             int bookId = resultSet.getInt("book_id");
             String bookName = resultSet.getString("book_name");
