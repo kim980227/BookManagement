@@ -3,7 +3,6 @@ package Service;
 import Book.Book;
 import jdbc.JdbcComm;
 import Book.BookRepository;
-
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
@@ -48,5 +47,4 @@ public class Sell {
 
         return sum;
     }
-
 }

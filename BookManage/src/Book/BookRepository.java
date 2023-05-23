@@ -112,15 +112,6 @@ public class BookRepository {
         JdbcComm jdbc = new JdbcComm();
         Statement statement = jdbc.getConnection().createStatement();
 
-//        // Receive input from the user
-//        Scanner scanner = new Scanner(System.in);
-//        System.out.print("Enter the book ID to apply discount: ");
-//        int bookId = scanner.nextInt();
-//        scanner.nextLine(); // Consume the newline character
-
-//        System.out.print("Enter the discount rate (e.g., 0.1 for 10%): ");
-//        double discountRate = scanner.nextDouble();
-
         BigDecimal discountRate = getDiscountRate(bookId); // book에서 가져와야 됨
 
         // Update the selling price with the discount
@@ -136,19 +127,12 @@ public class BookRepository {
         // Close resources
         statement.close();
         jdbc.closeConnection();
-//        scanner.close();
     }
 
     // id 받아서 is_deleted 값을 T
     public void deleteBook(int bookId) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
         Statement statement = jdbc.getConnection().createStatement();
-
-//        // Receive input from the user
-//        Scanner scanner = new Scanner(System.in);
-//        System.out.print("Enter the book ID to mark as deleted: ");
-//        int bookId = scanner.nextInt();
-//        scanner.nextLine(); // Consume the newline character
 
         // Update the row with deletion information
         String updateQuery = "UPDATE t_book SET is_deleted = 'T', deleted_ts = CURRENT_TIMESTAMP WHERE book_id = " + bookId;
@@ -163,7 +147,6 @@ public class BookRepository {
         // Close resources
         statement.close();
         jdbc.getConnection();
-//        scanner.close();
     }
 
     // Book의 제목, 내용, 저자 변경
@@ -218,4 +201,36 @@ public class BookRepository {
         jdbc.getConnection();
         scanner.close();
     }
+    public void discountOldBook(String bookName, BigDecimal discount_rate) throws SQLException {
+        JdbcComm jdbc = new JdbcComm();
+        Connection connection = jdbc.getConnection();
+        Statement statement = connection.createStatement();
+
+        // Find the highest edition for the given book name
+        String maxEditionQuery = "SELECT MAX(edition) FROM t_book WHERE book_name = '" + bookName + "'";
+        ResultSet maxEditionResult = statement.executeQuery(maxEditionQuery);
+        int maxEdition = 0;
+        if (maxEditionResult.next()) {
+            maxEdition = maxEditionResult.getInt(1);
+        }
+        maxEditionResult.close();
+
+        // Update the selling price of books with lower editions
+        String updateQuery = "UPDATE t_book SET selling_price = selling_price * (1 - " + discount_rate + ") "
+                + "WHERE book_name = '" + bookName + "' AND edition < " + maxEdition;
+
+
+        int rowsAffected = statement.executeUpdate(updateQuery);
+
+        if (rowsAffected > 0) {
+            System.out.println("Selling price updated for older editions of the book: " + bookName);
+        } else {
+            System.out.println("No older editions found for the book: " + bookName);
+        }
+
+        // Close resources
+        statement.close();
+        connection.close();
+    }
+
 }
