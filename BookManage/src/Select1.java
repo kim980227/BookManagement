@@ -17,7 +17,7 @@ public class Select1 {
         while (resultSet.next()) {
             Book book = new Book();
             book.setBookId(resultSet.getInt("book_id"));
-            book.setCategory(resultSet.getInt("category"));
+//            book.setCategory(resultSet.getInt("category"));
             book.setBookName(resultSet.getString("book_name"));
 
             liBook.add(book);

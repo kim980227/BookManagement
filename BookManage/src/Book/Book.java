@@ -6,29 +6,24 @@ import java.sql.*;
 
 public class Book {
     private int bookId;
-    private int category;
+    private int category1;
+    private int category2;
     private String bookName;
     private String summary;
     private String author;
     private String publisher;
-    private Date inDate;
-    private char isIn;
-    private Date outDate;
-    private char isOut;
-    private Date rentDate;
-    private char isRent;
-    private Date rentReservationDate;
     private BigDecimal purchasePrice;
     private BigDecimal sellingPrice;
-    private Timestamp saleTimestamp;
+    private int qty;
+    private String img;
+    private int page;
     private int edition;
     private BigDecimal discountRate;
-    private Timestamp createdTimestamp;
+    private Timestamp createdTs;
     private char isDeleted;
-    private Timestamp deletedTimestamp;
+    private Timestamp deletedTs;
 
-    public Book() {
-    }
+    // 생성자, getter/setter 메서드 등 생략
 
     public int getBookId() {
         return bookId;
@@ -38,12 +33,20 @@ public class Book {
         this.bookId = bookId;
     }
 
-    public int getCategory() {
-        return category;
+    public int getCategory1() {
+        return category1;
     }
 
-    public void setCategory(int category) {
-        this.category = category;
+    public void setCategory1(int category1) {
+        this.category1 = category1;
+    }
+
+    public int getCategory2() {
+        return category2;
+    }
+
+    public void setCategory2(int category2) {
+        this.category2 = category2;
     }
 
     public String getBookName() {
@@ -78,62 +81,6 @@ public class Book {
         this.publisher = publisher;
     }
 
-    public Date getInDate() {
-        return inDate;
-    }
-
-    public void setInDate(Date inDate) {
-        this.inDate = inDate;
-    }
-
-    public char getIsIn() {
-        return isIn;
-    }
-
-    public void setIsIn(char isIn) {
-        this.isIn = isIn;
-    }
-
-    public Date getOutDate() {
-        return outDate;
-    }
-
-    public void setOutDate(Date outDate) {
-        this.outDate = outDate;
-    }
-
-    public char getIsOut() {
-        return isOut;
-    }
-
-    public void setIsOut(char isOut) {
-        this.isOut = isOut;
-    }
-
-    public Date getRentDate() {
-        return rentDate;
-    }
-
-    public void setRentDate(Date rentDate) {
-        this.rentDate = rentDate;
-    }
-
-    public char getIsRent() {
-        return isRent;
-    }
-
-    public void setIsRent(char isRent) {
-        this.isRent = isRent;
-    }
-
-    public Date getRentReservationDate() {
-        return rentReservationDate;
-    }
-
-    public void setRentReservationDate(Date rentReservationDate) {
-        this.rentReservationDate = rentReservationDate;
-    }
-
     public BigDecimal getPurchasePrice() {
         return purchasePrice;
     }
@@ -150,12 +97,28 @@ public class Book {
         this.sellingPrice = sellingPrice;
     }
 
-    public Timestamp getSaleTimestamp() {
-        return saleTimestamp;
+    public int getQty() {
+        return qty;
     }
 
-    public void setSaleTimestamp(Timestamp saleTimestamp) {
-        this.saleTimestamp = saleTimestamp;
+    public void setQty(int qty) {
+        this.qty = qty;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 
     public int getEdition() {
@@ -174,12 +137,12 @@ public class Book {
         this.discountRate = discountRate;
     }
 
-    public Timestamp getCreatedTimestamp() {
-        return createdTimestamp;
+    public Timestamp getCreatedTs() {
+        return createdTs;
     }
 
-    public void setCreatedTimestamp(Timestamp createdTimestamp) {
-        this.createdTimestamp = createdTimestamp;
+    public void setCreatedTs(Timestamp createdTs) {
+        this.createdTs = createdTs;
     }
 
     public char getIsDeleted() {
@@ -190,38 +153,34 @@ public class Book {
         this.isDeleted = isDeleted;
     }
 
-    public Timestamp getDeletedTimestamp() {
-        return deletedTimestamp;
+    public Timestamp getDeletedTs() {
+        return deletedTs;
     }
 
-    public void setDeletedTimestamp(Timestamp deletedTimestamp) {
-        this.deletedTimestamp = deletedTimestamp;
+    public void setDeletedTs(Timestamp deletedTs) {
+        this.deletedTs = deletedTs;
     }
 
     @Override
     public String toString() {
         return "Book{" +
                 "bookId=" + bookId +
-                ", category=" + category +
+                ", category1=" + category1 +
+                ", category2=" + category2 +
                 ", bookName='" + bookName + '\'' +
                 ", summary='" + summary + '\'' +
                 ", author='" + author + '\'' +
                 ", publisher='" + publisher + '\'' +
-                ", inDate=" + inDate +
-                ", isIn=" + isIn +
-                ", outDate=" + outDate +
-                ", isOut=" + isOut +
-                ", rentDate=" + rentDate +
-                ", isRent=" + isRent +
-                ", rentReservationDate=" + rentReservationDate +
                 ", purchasePrice=" + purchasePrice +
                 ", sellingPrice=" + sellingPrice +
-                ", saleTimestamp=" + saleTimestamp +
+                ", qty=" + qty +
+                ", img='" + img + '\'' +
+                ", page=" + page +
                 ", edition=" + edition +
                 ", discountRate=" + discountRate +
-                ", createdTimestamp=" + createdTimestamp +
+                ", createdTs=" + createdTs +
                 ", isDeleted=" + isDeleted +
-                ", deletedTimestamp=" + deletedTimestamp +
+                ", deletedTs=" + deletedTs +
                 '}';
     }
 }
