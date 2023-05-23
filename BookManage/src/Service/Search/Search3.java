@@ -89,7 +89,7 @@ public class Search3 {
                     ///pk 별 키워드 검색 데이터 수집
                     String dataToSave = searchKeyword + ":" + bookId;
                     String filePath = "C:\\Users\\asdf\\Desktop\\dx_servlet";
-                    String fileName = "pk 키워드 검색데이터.txt";
+                    String fileName = "pkkeyword.txt";
                     saveDataToFile(filePath, fileName, dataToSave);
 
 

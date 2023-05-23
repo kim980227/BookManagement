@@ -1,10 +1,10 @@
 package Service.Search;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class KeywordParserByPK {
     public static void main(String[] args) {
@@ -12,7 +12,7 @@ public class KeywordParserByPK {
         String outputDirectory = "C:\\Users\\asdf\\Desktop\\dx_servlet\\parser";
 
         try {
-            Map<Integer, StringBuilder> keywordMap = parseKeywords(inputFilePath);
+            Map<Integer, Map<String, Integer>> keywordMap = parseKeywords(inputFilePath);
             writeKeywordFiles(outputDirectory, keywordMap);
             System.out.println("파일 처리가 완료되었습니다.");
         } catch (IOException e) {
@@ -20,8 +20,8 @@ public class KeywordParserByPK {
         }
     }
 
-    private static Map<Integer, StringBuilder> parseKeywords(String inputFilePath) throws IOException {
-        Map<Integer, StringBuilder> keywordMap = new HashMap<>();
+    private static Map<Integer, Map<String, Integer>> parseKeywords(String inputFilePath) throws IOException {
+        Map<Integer, Map<String, Integer>> keywordMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath))) {
             String line;
@@ -31,7 +31,12 @@ public class KeywordParserByPK {
                     int pk = Integer.parseInt(parts[1].trim());
                     String keyword = parts[0].trim();
 
-                    keywordMap.computeIfAbsent(pk, k -> new StringBuilder()).append(keyword).append("\n");
+                    if (!keywordMap.containsKey(pk)) {
+                        keywordMap.put(pk, new HashMap<>());
+                    }
+
+                    Map<String, Integer> keywordCountMap = keywordMap.get(pk);
+                    keywordCountMap.put(keyword, keywordCountMap.getOrDefault(keyword, 0) + 1);
                 }
             }
         }
@@ -39,14 +44,23 @@ public class KeywordParserByPK {
         return keywordMap;
     }
 
-    private static void writeKeywordFiles(String outputDirectory, Map<Integer, StringBuilder> keywordMap) throws IOException {
-        for (Map.Entry<Integer, StringBuilder> entry : keywordMap.entrySet()) {
+    private static void writeKeywordFiles(String outputDirectory, Map<Integer, Map<String, Integer>> keywordMap) throws IOException {
+        for (Map.Entry<Integer, Map<String, Integer>> entry : keywordMap.entrySet()) {
             int pk = entry.getKey();
-            StringBuilder keywords = entry.getValue();
+            Map<String, Integer> keywordCountMap = entry.getValue();
+
+            /////// 내림차순 키워드 정렬
+            List<Map.Entry<String, Integer>> keywordList = new ArrayList<>(keywordCountMap.entrySet());
+            keywordList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
             String outputFilePath = outputDirectory + "\\" + pk + ".txt";
             try (FileWriter writer = new FileWriter(outputFilePath)) {
-                writer.write(keywords.toString());
+                for (Map.Entry<String, Integer> keywordEntry : keywordList) {
+                    String keyword = keywordEntry.getKey();
+                    int count = keywordEntry.getValue();
+                    String line = keyword + ": " + count + "\n";
+                    writer.write(line);
+                }
             }
         }
     }
