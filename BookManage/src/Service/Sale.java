@@ -5,6 +5,7 @@ import Book.BookRepository;
 import BookSaleHistory.BookSaleHistory;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.Scanner;
 
 public class Sale {
     static BookRepository bookRepository = new BookRepository();
+    static Sell sell = new Sell();
 
     public static void main(String[] args) throws SQLException {
         setSaleHistory();
@@ -39,7 +41,19 @@ public class Sale {
         bookSaleHistory.setUser_name(userName);
         bookSaleHistory.setQty(buyQty);
         bookSaleHistory.setPurchasePrice(book.getPurchasePrice());
-        bookSaleHistory.setSellingPrice(book.getSellingPrice());
+        if(buyQty >= 5) {
+            BigDecimal sellingPrice = book.getSellingPrice();
+            BigDecimal buyQtyBigDecimal = BigDecimal.valueOf(buyQty);
+            BigDecimal totalPrice = sellingPrice.multiply(buyQtyBigDecimal);
+            BigDecimal discount_rate = bookRepository.getDiscountRate(book.getBookId());
+            totalPrice = totalPrice.multiply(discount_rate);
+            bookSaleHistory.setSellingPrice(totalPrice); // 할인율 적용되도록 수정
+        } else {
+            BigDecimal sellingPrice = book.getSellingPrice();
+            BigDecimal buyQtyBigDecimal = BigDecimal.valueOf(buyQty);
+            BigDecimal totalPrice = sellingPrice.multiply(buyQtyBigDecimal);
+            bookSaleHistory.setSellingPrice(totalPrice);
+        }
         bookSaleHistory.setSale_date(Date.valueOf(LocalDate.now()));
 
         StringBuffer sb = new StringBuffer("");
