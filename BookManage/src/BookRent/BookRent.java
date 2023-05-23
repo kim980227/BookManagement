@@ -3,9 +3,7 @@ package BookRent;
 import java.sql.Date;
 
 public class BookRent {
-
     final static int global_pay = 500;
-
     String user_name;
     int book_id;
     Date end_date;

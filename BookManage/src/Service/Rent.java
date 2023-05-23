@@ -22,6 +22,9 @@ public class Rent {
 //        setReturn();
     }
 
+    BookRent getRentList(){
+        return new BookRent();
+    }
     /**
      * 대출
      *
