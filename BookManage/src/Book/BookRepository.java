@@ -12,13 +12,13 @@ public class BookRepository {
     public LinkedList<Book> getAllByIdAndCategoryAndName(int Limit) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
         Statement statement = jdbc.getConnection().createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT book_id, category, book_name FROM t_book LIMIT" + Limit );
+        ResultSet resultSet = statement.executeQuery("SELECT book_id, category, book_name FROM t_book LIMIT" + Limit);
         LinkedList<Book> liBook = new LinkedList<>();
 
         while (resultSet.next()) {
             Book book = new Book();
             book.setBookId(resultSet.getInt("book_id"));
-            book.setCategory(resultSet.getInt("category"));
+            book.setCategory1(resultSet.getInt("category"));
             book.setBookName(resultSet.getString("book_name"));
 
 
@@ -32,14 +32,29 @@ public class BookRepository {
 
     public int insert(Book book) throws SQLException {
         JdbcComm jdbc = new JdbcComm();
-        Statement statement = jdbc.getConnection().createStatement();
+        Connection connection = jdbc.getConnection();
 
-        String insertQuery = "INSERT INTO t_book (category, book_name, summary, author, publisher, in_date, is_in) " +
-                "VALUES (" + book.getCategory() + ", '" + book.getBookName() + "', '" + book.getSummary() + "', '" + book.getAuthor() + "', '" + book.getPublisher() + "', '" + book.getInDate() + "', '" + book.getIsIn() + "')";
+        String insertQuery = "INSERT INTO t_book (category_1, category_2, book_name, summary, author, publisher, purchase_price, selling_price, qty, img, page, edition) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        int result = statement.executeUpdate(insertQuery);
+        PreparedStatement statement = connection.prepareStatement(insertQuery);
+        statement.setInt(1, book.getCategory1());
+        statement.setInt(2, book.getCategory2());
+        statement.setString(3, book.getBookName());
+        statement.setString(4, book.getSummary());
+        statement.setString(5, book.getAuthor());
+        statement.setString(6, book.getPublisher());
+        statement.setBigDecimal(7, book.getPurchasePrice());
+        statement.setBigDecimal(8, book.getSellingPrice());
+        statement.setInt(10, book.getQty());
+        statement.setString(11, book.getImg());
+        statement.setInt(12, book.getPage());
+        statement.setInt(13, book.getEdition());
+
+        int result = statement.executeUpdate();
         statement.close();
         jdbc.closeConnection();
+
         return result;
     }
 
@@ -80,7 +95,7 @@ public class BookRepository {
         JdbcComm jdbc = new JdbcComm();
 
         // 쿼리 실행
-        String query = "SELECT COUNT(*) AS count FROM t_book WHERE book_name = ?";
+        String query = "SELECT COUNT(*) AS COUNT FROM t_book WHERE book_name = ?";
         PreparedStatement statement = jdbc.getConnection().prepareStatement(query);
         statement.setString(1, name); // name 변수에 적절한 값 설정
         ResultSet resultSet = statement.executeQuery();
@@ -93,6 +108,29 @@ public class BookRepository {
         }
 
         return false;
+    }
+
+    public Book getBookQtyByBookName(String name) throws SQLException {
+        JdbcComm jdbc = new JdbcComm();
+        Book book = new Book();
+        // 쿼리 실행
+        String query = "SELECT qty, book_id, purchase_price, selling_price FROM t_book WHERE book_name = ?";
+        PreparedStatement statement = jdbc.getConnection().prepareStatement(query);
+        statement.setString(1, name); // name 변수에 적절한 값 설정
+        ResultSet resultSet = statement.executeQuery();
+
+        // 결과 처리
+        if (resultSet.next()) {
+            book.setQty(resultSet.getInt("qty"));
+            book.setBookId(resultSet.getInt("book_id"));
+            book.setPurchasePrice(resultSet.getBigDecimal("purchase_price"));
+            book.setSellingPrice(resultSet.getBigDecimal("selling_price"));
+
+//            System.out.println("책 개수: " + book.getQty());
+            return book;
+        }
+
+        return null;
     }
 
     // book이 삭제되었는지 확인
@@ -221,5 +259,20 @@ public class BookRepository {
         statement.close();
         jdbc.getConnection();
         scanner.close();
+    }
+
+
+    public int updateQty(Book book) throws SQLException {
+        JdbcComm jdbc = new JdbcComm();
+        Connection connection = jdbc.getConnection();
+        // Update the row with the new values
+        String updateQuery = "UPDATE t_book SET qty = ? WHERE book_id = ?";
+        PreparedStatement updateStatement = connection.prepareStatement(updateQuery);
+        updateStatement.setInt(1, book.getQty());
+        updateStatement.setInt(2, book.getBookId());
+        int result = updateStatement.executeUpdate();
+        updateStatement.close();
+        jdbc.closeConnection();
+        return result;
     }
 }

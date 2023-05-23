@@ -1,8 +1,10 @@
 package Service;
 
-import Book.BookRepository;
+import Book.*;
+import BookRent.BookRent;
 
 import java.io.*;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,33 +17,34 @@ public class Rent {
     static BookRepository bookRepository = new BookRepository();
 
     public static void main(String[] args) throws SQLException {
-//        setRent();
-        setReturn();
-//        payRent();
+
+        setRent();
+//        setReturn();
     }
 
-    public static boolean setRent() {
+    /**
+     * 대출
+     *
+     * @return
+     * @throws SQLException
+     */
+    public static boolean setRent() throws SQLException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("사용자 명을 입력하세요: ");
-        String UserName = scanner.nextLine();
+        String userName = scanner.nextLine();
 
         // 한국소설 1, 자기개발 1
         System.out.print("대출할 책을 입력하세요: ");
         String bookName = scanner.nextLine();
-
-        try {
-            boolean b = bookRepository.validateName(bookName);
-            if (!b) {
-                System.out.println("책이없습니다.");
-                return false;
-            }
-        } catch (SQLException e) {
-            // SQL 예외 처리
-            System.err.println("SQL 오류 발생: " + e.getMessage());
-            e.printStackTrace();
+        Book book = bookRepository.getBookQtyByBookName(bookName);
+        if (book == null || book.getQty() <= 0) {
+            System.out.println("책이 없습니다.");
+            return false;
         }
+        System.out.println("책 개수: " + book.getQty());
 
+        // 책 대출 로직 start
         LocalDate currentDate = LocalDate.now();
         // 7일을 더한 날짜 계산
         LocalDate futureDate = currentDate.plusDays(7);
@@ -49,7 +52,10 @@ public class Rent {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         // 문자열로 변환
         String futureDateStr = futureDate.format(formatter);
-
+        BookRent bookRent = new BookRent();
+        bookRent.setBook_id(book.getBookId());
+        bookRent.setEnd_date(Date.valueOf(futureDateStr));
+        bookRent.setUser_name(userName);
 
         StringBuffer sb = new StringBuffer("");
         try {
@@ -61,22 +67,34 @@ public class Rent {
                 sb.append(line).append("\n");
                 String[] arr = line.split("\\|\\s*");
             }
-
-            sb.append(UserName).append("|").append(bookName).append("|").append(futureDateStr).append("|").append("0");
-
+            sb.append(bookRent.getUser_name()).append("|").append(bookRent.getBook_id()).append("|").append(bookRent.getEnd_date()).append("|").append(bookRent.getRent_pay());
             Writer writer = new FileWriter("rent.txt");
             writer.write(sb.toString());
-            writer.close();        } catch (Exception e) {
-
+            writer.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        // 책 대출 로직 end
+
+        // 수량 업데이트
+        book.setQty(book.getQty() - 1);
+        int result = bookRepository.updateQty(book);
+        if (!(result > 0)) {
+            System.out.println("업데이트 실패");
+            return false;
+        }
+
         return true;
     }
 
-    public static boolean setReturn() {
-
+    /**
+     * 반납
+     *
+     * @return
+     * @throws SQLException
+     */
+    public static boolean setReturn() throws SQLException {
         Scanner scanner = new Scanner(System.in);
-
         System.out.print("사용자 명을 입력하세요: ");
         String userName = scanner.nextLine();
 
@@ -84,20 +102,16 @@ public class Rent {
         System.out.print("반납할 책을 입력하세요: ");
         String bookName = scanner.nextLine();
 
-        try {
-            boolean b = bookRepository.validateName(bookName);
-            if (!b) {
-                System.out.println("책이없습니다.");
-                return false;
-            }
-        } catch (SQLException e) {
-            // SQL 예외 처리
-            System.err.println("SQL 오류 발생: " + e.getMessage());
-            e.printStackTrace();
+        Book book = bookRepository.getBookQtyByBookName(bookName);
+        if (book == null || book.getQty() <= 0) {
+            System.out.println("책이 없습니다.");
+            return false;
         }
 
-
+        LocalDate currentDate = LocalDate.now();
         StringBuffer sb = new StringBuffer("");
+        boolean whileResult = false;
+
         try {
             Reader r = new FileReader("rent.txt");
             BufferedReader br = new BufferedReader(r);
@@ -105,12 +119,20 @@ public class Rent {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] arr = line.split("\\|\\s*");
-                System.out.println(Arrays.toString(arr));
-                if (Objects.equals(arr[0], userName) && Objects.equals(arr[1], bookName)) {
-                    if (Integer.parseInt(arr[3]) > 0) {
-                        System.out.println("연체료는 " + arr[3] + "원 입니다.");
+
+                BookRent bookRent = new BookRent(arr[0], Integer.parseInt(arr[1]), Date.valueOf(arr[2]), Integer.parseInt(arr[3]));
+
+                if (Objects.equals(bookRent.getUser_name(), userName) && Objects.equals(bookRent.getBook_id(), book.getBookId())) {
+
+                    long i = ChronoUnit.DAYS.between(bookRent.getEnd_date().toLocalDate(), currentDate);
+
+                    if (i > 0) {
+                        System.out.println("연체일은 " + i);
+                        System.out.println("연체료는 " + bookRent.getRent_pay() * i + "원 입니다.");
                     }
+
                     System.out.println("반납 완료");
+                    whileResult = true;
                 } else {
                     sb.append(line).append("\n");
                 }
@@ -123,35 +145,20 @@ public class Rent {
             e.printStackTrace();
         }
 
-        return true;
-    }
 
-    public static void payRent() {
-
-        StringBuffer sb = new StringBuffer("");
-        try {
-            Reader r = new FileReader("rent.txt");
-            BufferedReader br = new BufferedReader(r);
-            LocalDate currentDate = LocalDate.now();
-
-            // 한 줄씩 읽기
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] arr = line.split("\\|\\s*");
-                String[] arrDate = arr[2].split("-");
-                System.out.println(Arrays.toString(arrDate));
-                LocalDate date2 = LocalDate.of(Integer.valueOf(arrDate[0]), Integer.valueOf(arrDate[1]), Integer.valueOf(arrDate[2]));
-                // 날짜 간의 일수 차이 계산
-                long daysBetween = ChronoUnit.DAYS.between(currentDate, date2);
-                System.out.println(daysBetween);
-
-            }
-
-            Writer writer = new FileWriter("rent.txt");
-            writer.write(sb.toString());
-            writer.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!whileResult) {
+            System.out.println("반납할 책이 없습니다.");
+            return false;
         }
+
+        // 수량 업데이트
+        book.setQty(book.getQty() + 1);
+        int result = bookRepository.updateQty(book);
+        if (!(result > 0)) {
+            System.out.println("업데이트 실패");
+            return false;
+        }
+
+        return true;
     }
 }
