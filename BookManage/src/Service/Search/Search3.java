@@ -19,7 +19,7 @@ public class Search3 {
         // 데이터베이스 연결 정보
         String url = "jdbc:mysql://localhost:3306/db01";
         String username = "root";
-        String password = "0000";
+        String password = "1234";
 
         // 한글 검색 항목과 영어 컬럼 이름 매핑
         Map<String, String> columnMap = new HashMap<>();
@@ -88,8 +88,8 @@ public class Search3 {
 
                     ///pk 별 키워드 검색 데이터 수집
                     String dataToSave = searchKeyword + ":" + bookId;
-                    String filePath = "C:\\Users\\asdf\\Desktop\\dx_servlet";
-                    String fileName = "pk 키워드 검색데이터.txt";
+                    String filePath = "C:\\Users\\wkdtn\\Desktop\\dx_servlet";
+                    String fileName = "pkkeyword.txt";
                     saveDataToFile(filePath, fileName, dataToSave);
 
 
@@ -191,8 +191,8 @@ public class Search3 {
 
                     ///pk 별 키워드 검색 데이터 수집
                     String dataToSave = searchKeyword + ":" + bookId;
-                    String filePath = "C:\\Users\\asdf\\Desktop\\dx_servlet";
-                    String fileName = "pk별 검색 키워드 데이터.txt";
+                    String filePath = "C:\\Users\\wkdtn\\Desktop\\dx_servlet";
+                    String fileName = "pkkeyword.txt";
                     saveDataToFile(filePath, fileName, dataToSave);
 
                     // ... (필요한 열에 따라 추가)
